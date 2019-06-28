@@ -7,6 +7,8 @@ from cvplibrary import CVPGlobalVariables, GlobalVariableNames
 from cvplibrary import RestClient 
 import requests
 import ssl
+
+# Deactivate warnings and error for self-signed certificates.
 ssl._create_default_https_context = ssl._create_unverified_context
 
 """
@@ -14,10 +16,9 @@ Generic configlet builder for Jinj2 rendering with JSON
 """
 
 __author__ = "Thomas Grimonet"
-__license__ = "GPL"
+__license__ = "BSD"
 __version__ = "0.0.1"
 __date__ = "27/06/2019"
-__maintainer__ = "Thomas Grimonet"
 
 # Configlet name where to get the JINJA2 template
 TEMPLATE_FILE = '10-TEMPLATE-LEAF'
@@ -127,11 +128,13 @@ if __name__ == '__main__':
     data = json.loads(configlet_get(device_data_configlet))
     template_content = configlet_get(TEMPLATE_FILE)
 
+    # Load optional JSON configlet
     for data_configlet in GLOBAL_DATA_FILE:
         data_json = json.loads(configlet_get(data_configlet))
         data = json_merge(data, data_json)
 
+    # Run template rendering
     template = Template(template_content)
     
-    # Save output
+    # Print output
     print template.render(data)

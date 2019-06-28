@@ -1,0 +1,54 @@
+{# -------------------------------------- #}
+{# Manage L3 INTERFACE RENDERING          #}
+{# -------------------------------------- #}
+{##}
+{% for interface_type in interfaces %}
+{# Dictionaries do not have iteritem methods in 3.x. You will need to change to .items() #}
+{# https://github.com/pallets/jinja/issues/150 #}
+{% for ifname, interface in interfaces[interface_type].items()|sort  %}
+{% if interface.role == "ip_address" %}
+{# use ifname for physocal and port-channel #}
+{% if interface_type == "physical" or interface_type == "port_channel"%}
+interface {{ifname| replace("_", "-")}}
+{% endif %}
+{# use interface_type + ifname for vlans and loopbacks #}
+{% if interface_type == "vlans" or interface_type == "loopbacks"%}
+interface {{interface_type| replace("s", "")}} {{ifname| replace("_", "-")}}
+{% endif %}
+  {% if interface.ip_address.vrf is defined %}
+  {# Only support new EOS syntax #}
+  {# MUST be placed on top of configuration to not unconfigured IP address #}
+  vrf {{interface.ip_address.vrf}}
+  {% endif %}
+  {% if interface.ip_address.v4 is defined %}
+  ip address {{interface.ip_address.v4.address}}/{{interface.ip_address.v4.netmask}}
+  {% endif %}
+  {% if interface.ip_address.v4_secondary is defined %}
+    {% for secondary in interface.ip_address.v4_secondary %}
+  ip address {{secondary.address}}/{{secondary.netmask}} secondary
+    {% endfor %}
+  {% endif %}
+  {% if interface.ip_address.v6 is defined %}
+  ipv6 address {{interface.ip_address.v6.address}}/{{interface.ip_address.v6.netmask}}
+  {% endif %}
+  {% if interface.ip_address.v6_secondary is defined %}
+    {% for secondary in interface.ip_address.v6_secondary %}
+  ipv6 enable
+  ipv6 address {{secondary.address}}/{{secondary.netmask}}
+    {% endfor %}
+  {% endif %}
+  {# Only if we configure a physical interface / does not make sense for vlans and loopback #}
+  {% if interface_type == "physical" or interface_type == "port_channel"%}
+  no switchport
+  {% endif %}
+  description {{interface.description | default("[no description provided]")}}
+  {% if interface.mtu is defined %}
+  mtu {{interface.mtu}}
+  {% endif %}
+  {% if interface.speed is defined %}
+  speed {{interface.speed}}
+  {% endif %}
+!
+{% endif %}
+{% endfor%}
+{% endfor%}
