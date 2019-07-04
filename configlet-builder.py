@@ -2,6 +2,7 @@ import yaml
 import os
 import json
 from jinja2 import Template, Environment, FileSystemLoader
+
 ### Specific CVP Libraries
 from cvplibrary import CVPGlobalVariables, GlobalVariableNames 
 from cvplibrary import RestClient 
@@ -12,7 +13,7 @@ import ssl
 ssl._create_default_https_context = ssl._create_unverified_context
 
 """
-Generic configlet builder for Jinj2 rendering with JSON
+Generic configlet builder for Jinj2 rendering with JSON to run CVP
 """
 
 __author__ = "Thomas Grimonet"
@@ -45,7 +46,7 @@ def cvp_query(postfix, http_type='GET', data=None):
     
     Returns
     -------
-    dcit
+    dict
         server response.
     """
     response = False
