@@ -1,0 +1,196 @@
+{
+    "hostname": "leaf01-ansible",
+    "facts": {
+        "serial_number": "xxxxx",
+        "eos_version": "4.22.0F",
+        "configuration_version": "2",
+        "schema_version": "2019.1.0"
+    },
+    "interfaces": {
+        "physical": {
+            "management1": {
+                "key": "management 1",
+                "ip_address": {
+                    "v4": {
+                        "address": "10.255.0.102",
+                        "netmask": 24
+                    }
+                },
+                "description": "Management network",
+                "role": "ip_address",
+                "mtu": 9200,
+                "speed": "auto",
+                "state": "enable"
+            },
+            "ethernet 1": {
+                "key": "ethernet 1",
+                "ip_address": {
+                    "v4": {
+                        "address": "172.16.0.1",
+                        "netmask": 31
+                    }
+                },
+                "description": "to spine01 -- et1",
+                "role": "ip_address",
+                "mtu": 9200,
+                "speed": "auto",
+                "state": "enable"
+            },
+            "ethernet 2": {
+                "key": "ethernet 2",
+                "ip_address": {
+                    "v4": {
+                        "address": "172.16.0.7",
+                        "netmask": 31
+                    }
+                },
+                "description": "to spine02 -- et1",
+                "role": "ip_address",
+                "mtu": 9200,
+                "speed": "auto",
+                "state": "enable"
+            },
+            "ethernet 3": {
+                "key": "ethernet 3",
+                "description": "to rack01 vPC",
+                "role": "l2_access",
+                "mtu": 9200,
+                "l2_access": {
+                    "vlan": 100
+                }
+            }
+        },
+        "loopbacks": {
+            "0": {
+                "key": 0,
+                "ip_address": {
+                    "v4": {
+                        "address": "10.254.0.11",
+                        "netmask": 32
+                    }
+                },
+                "description": "BGP Loopback",
+                "role": "ip_address"
+            },
+            "1": {
+                "key": 1,
+                "ip_address": {
+                    "v4": {
+                        "address": "10.253.0.11",
+                        "netmask": 32
+                    }
+                },
+                "description": "VXLAN Loopback",
+                "role": "ip_address"
+            }
+        },
+        "vxlan": {
+            "vxlan 1": {
+                "key": "vxlan 1",
+                "description": "my descr",
+                "role": "vxlan",
+                "source": "Loopback1"
+            }
+        }
+    },
+    "routing": {
+        "router_id": "10.255.0.11",
+        "local_as": 65001,
+        "ecmp": {
+            "max_path": 3,
+            "max_link": 3
+        },
+        "bgp_peers": {
+            "172.16.0.0": {
+                "key": "172.16.0.0",
+                "type": "peer",
+                "group": "SPINE"
+            },
+            "172.16.0.6": {
+                "key": "172.16.0.6",
+                "type": "peer",
+                "group": "SPINE"
+            },
+            "10.254.0.1": {
+                "key": "10.254.0.1",
+                "type": "peer",
+                "group": "EVPN_FABRIC"
+            },
+            "10.254.0.2": {
+                "key": "10.254.0.2",
+                "type": "peer",
+                "group": "EVPN_FABRIC"
+            },
+            "SPINE": {
+                "key": "SPINE",
+                "families": [
+                    "ipv4"
+                ],
+                "nh_unchanged": true,
+                "remote_as": 65000,
+                "type": "group"
+            },
+            "EVPN_FABRIC": {
+                "key": "EVPN_FABRIC",
+                "families": [
+                    "evpn"
+                ],
+                "remote_as": 65000,
+                "nh_unchanged": true,
+                "multihop": 5,
+                "type": "group",
+                "source": "Loopback0"
+            }
+        }
+    },
+    "vlans": {
+        "100": {
+            "name": "app_vlan",
+            "key": 100,
+            "vni": 10100,
+            "rd": "10:10100",
+            "rt": "2:100"
+        },
+        "200": {
+            "name": "user_vlan",
+            "key": 200,
+            "vni": 10200,
+            "rd": "10:10200",
+            "rt": "2:200"
+        },
+        "201": {
+            "name": "dmz_vlan",
+            "key": 201,
+            "vni": 10201,
+            "rd": "10:10201",
+            "rt": "2:201"
+        }
+    },
+    "management": {
+        "eapi_enable": true,
+        "admin_users": {
+            "user1": {
+                "username": "user_1",
+                "password": "password1",
+                "privilege": 15,
+                "ssh_key": "public ssh key content"
+            }
+        },
+        "snmpv2_communities": {
+            "public": {
+                "community": "public",
+                "networks": [
+                    "10.10.0.0/24",
+                    "192.168.1.0/24"
+                ]
+            },
+            "private": {
+                "community": "private",
+                "networks": [
+                    "10.10.0.0/24",
+                    "192.168.1.0/24"
+                ]
+            }
+        }
+    }
+}
