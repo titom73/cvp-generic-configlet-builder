@@ -1,5 +1,7 @@
 # Generic CloudVision Configlet Builder
 
+__WARNING: Because of some internal changes in CVP >= 2022, this repository is not working anymore and will remain visibile in archive mode for information purpose only.__
+
 ## Overview
 
 This repository provides a generic [configlet builder](https://www.arista.com/en/cg-cv/cv-creating-configlets#ww1185504) to render a JINJA2 template configured in a configlet and load all datas from a list of static configlets with JSON content.
